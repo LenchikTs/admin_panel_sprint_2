@@ -1,17 +1,45 @@
 version: '3'
 services:
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: "movies_db"
+      POSTGRES_USER: "app"
+      POSTGRES_PASSWORD: "123qwe"
+      POSTGRES_HOST: "127.0.0.1"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+
   service:
-    build: app
+    build:
+      context: app
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
     expose:
       - "8000"
+    volumes:
+      - ./app/example/static:/opt/app/static
+    env_file:
+      - ./.env
 
   nginx:
     image: nginx:latest
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./configs:/etc/nginx/conf.d:ro
-      - ./data:/data/:ro
+      - ./app/example/static:/opt/app/static
     depends_on:
       - service
     ports:
       - "80:80"
+
+volumes:
+  postgres_data:
+#    external: True
