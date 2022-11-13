@@ -85,6 +85,9 @@ class Filmwork(UUIDMixin, TimeStampedMixin):
     certificate = models.CharField(_('certificate'), max_length=512, blank=True)
     file_path = models.FileField(_('file'), blank=True, null=True, upload_to='movies/')
     description = models.TextField(_('description'), blank=True)
+    constraints = [
+        models.Index(fields=['creation_date'], name='film_work_creation_date_idx'),
+    ]
 
     def __str__(self):
         return self.title

@@ -1,0 +1,4 @@
+psycopg2-binary==2.9.3
+python-dotenv==0.20.0
+elasticsearch==8.4.1
+pydantic==1.10.2

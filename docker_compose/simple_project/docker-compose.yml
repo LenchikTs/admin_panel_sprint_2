@@ -32,6 +32,34 @@ services:
     depends_on:
       - service
 
+  elastic:
+      image: elasticsearch:8.4.1
+      ports:
+        - "9200:9200"
+      environment:
+        - discovery.type=single-node
+        - ES_JAVA_OPTS=-Xms200m -Xmx200m
+        - xpack.security.enabled=false
+      volumes:
+        - elasticsearch_data:/elasticsearch/data
+      depends_on:
+          - db
+
+  etl_service:
+    build:
+          context: etl
+    environment:
+          HOST: db
+          HOSTES: elastic
+    depends_on:
+      - elastic
+    volumes:
+      - etl_data:/etl/data
+    entrypoint: ["python", "connection.py"]
+
+
 volumes:
+  elasticsearch_data:
+  etl_data:
   postgres_data:
 #    external: True
