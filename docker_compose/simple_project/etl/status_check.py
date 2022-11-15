@@ -3,7 +3,7 @@ import json
 from typing import Any, Optional
 
 
-class BaseStorage:
+class BaseStorage(abc.ABC):
     @abc.abstractmethod
     def save_state(self, state: dict) -> None:
         """Сохранить состояние в постоянное хранилище"""
@@ -46,20 +46,15 @@ class State:
 
     def set_state(self, key: str, value: Any) -> None:
         """Установить состояние для определённого ключа"""
-        data = dict()
-        if key:
-            data[key] = value
-            self.storage.save_state(data)
-        else:
+        if not key:
             return None
+
+        self.storage.save_state({key: value})
 
     def get_state(self, key: str) -> Any:
         """Получить состояние по определённому ключу"""
         state = self.storage.retrieve_state()
-        if state.get(key, False):
-            return state[key]
-        else:
-            return None
+        return state.get(key)
 
 
 def get_status(filepath):

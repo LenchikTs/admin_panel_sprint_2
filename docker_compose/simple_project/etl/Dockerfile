@@ -6,8 +6,8 @@ WORKDIR /opt/etl
 # Скопируйте в контейнер файлы, которые редко меняются
 COPY requirements.txt requirements.txt
 
-RUN  pip install --upgrade pip \
-     && pip install -r requirements.txt
+RUN  pip install --no-cache-dir --upgrade pip \
+     && pip install --no-cache-dir -r requirements.txt
 
 # Скопируйте всё оставшееся. Для ускорения сборки образа эту команду стоит разместить ближе к концу файла.
 COPY . .
@@ -16,6 +16,6 @@ COPY . .
 #RUN python connection.py
 
 # Укажите порт, на котором приложение будет доступно внутри Docker-сети
-EXPOSE 9000
+#EXPOSE 9000
 
 

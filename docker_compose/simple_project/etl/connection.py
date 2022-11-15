@@ -43,9 +43,9 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
         def inner(*args, **kwargs):
             delay = start_sleep_time
             num = 1
-            while 1:
+            while True:
                 try:
-                    func()
+                    return func()
                     delay = start_sleep_time
                     time.sleep(border_sleep_time)
                 except Exception as err:
@@ -60,18 +60,18 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
                         delay = min(delay * factor, border_sleep_time)
             logging.info('timeout')
 
-        return inner()
+        return inner
 
-    return func_wrapper(connection)
+    return func_wrapper
 
-
+@backoff()
 def connection():
     """Функция отвечающая за подключение к базам данных"""
     dsl = {'dbname': os.environ.get('DB_NAME'), 'user': os.environ.get('DB_USER'),
            'password': os.environ.get('DB_PASSWORD'), 'host': os.environ.get('DB_HOST'),
            'port': os.environ.get('DB_PORT')}
     with psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn, \
-            Elasticsearch('http://localhost:9200') as es:
+            Elasticsearch(os.environ.get('ELASTIC_PORT')) as es:
         status = get_status('status.json')
         load_from_pysql(es, pg_conn, status)
 
@@ -80,4 +80,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, filename="logs.log", filemode="w",
                         format="%(asctime)s %(levelname)s %(message)s")
     # Добавила паузы по 10 сек. При обрыве подключения после 10 попытки скрипт завершается.
-    backoff()
+    connection()
